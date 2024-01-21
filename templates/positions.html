@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        #content {
+            display: flex;
+        }
+
+        #section-shifts, #section-positions {
+            flex: 1;
+            margin: 10px; /* Optional: Add some margin for spacing */
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h1>Positions</h1>
+    <div id="content">
+ 
+
+        <section id="section-shifts">
+            <h3>Add New Shift</h3>
+            <form method="post" action="{{ url_for('add_new_shift') }}" style="display:inline;">
+                <input type="text" name="new_shift" required>
+                <button type="submit">Add</button>
+            </form>
+
+            <h2>Shifts</h2>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Shift</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for shift in shifts %}
+                        <tr>
+                            <td>{{ shift }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('delete_shift') }}" style="display:inline;">
+                                    <input type="hidden" name="shift" value="{{ shift }}">
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this shift?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            
+        </section>
+
+        <section id="section-positions">
+            <h3>Add New Position</h3>
+            <form method="post" action="{{ url_for('positions_page') }}" style="display:inline;">
+                <input type="text" name="new_position" required>
+                <button type="submit">Add</button>
+            </form>
+            
+            <h2>Positions</h2>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for position in positions %}
+                        <tr>
+                            <td>{{ position }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('positions_page') }}" style="display:inline;">
+                                    <input type="hidden" name="position" value="{{ position }}">
+                                    <button type="submit" onclick="return confirm('Are you sure you want to delete this position?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+           
+
+        </section>
+    </div>
+</body>
+</html>

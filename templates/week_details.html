@@ -1,0 +1,58 @@
+<!-- week_details.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='schedules_styles.css') }}">
+    <!-- Include any additional styles specific to this page if needed -->
+    <title>Week Details</title>
+</head>
+<body>
+
+    {% include 'navbar.html' %}
+
+    <script src="{{ url_for('static', filename='schedules_script.js') }}"></script>
+
+    <h1>Week {{ week_number }} Details</h1>
+
+    <div id="start-date">Start date: {{ start_date }}</div>
+
+    <h2>Schedule for the week:</h2>
+    <form id="scheduleForm">
+        <table border="1">
+            <tr>
+                <th>Position</th>
+                {% for day_data in week_data %}
+                    <th>{{ day_data['date'] }}</th>
+                {% endfor %}
+            </tr>
+            {% for position, schedule_for_day in week_data[0]['schedule'].items() %}
+                <tr>
+                    <td>{{ position }}</td>
+                    {% for day_data in week_data %}
+                        <td data-day="{{ day_data['date'] }}">
+                            <select class="worker-dropdown" data-position="{{ position }}" data-day="{{ day_data['date'] }}">
+                                <option value=""></option>
+                                {% for w in workers %}
+                                    <option value="{{ w }}" {% if day_data['schedule'][position] == w %}selected{% endif %}>{{ w }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="add-button" onclick="addDropdown(this)">+</button>
+                            <button class="remove-button" onclick="removeDropdown(this)">-</button>
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+        <input type="checkbox" id="showLongWeek" onchange="toggleLongWeek()">
+        <label for="showLongWeek">Lange Woche</label>
+        <input type="submit" value="Save Schedule">
+    </form>
+
+    
+    
+
+</body>
+</html>

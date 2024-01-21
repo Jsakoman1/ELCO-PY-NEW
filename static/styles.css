@@ -1,0 +1,102 @@
+body {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    margin: 5px;
+    text-align: center;
+    background-color: #f4f4f4;
+}
+
+h1, h2, h3 {
+    color: #333;
+    margin-bottom: 5px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 2px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 20%;
+    margin: 10px auto;
+    border: 1px solid #ddd;
+    background-color: #fff;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 5px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+#start-date {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+section {
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #fff;
+}
+
+/* Style for the first section */
+#roles-section {
+    border-bottom: 2px solid #ddd;
+}
+
+.no-roles {
+    color: red;
+}
+
+/* Style for delete buttons */
+form[action="{{ url_for('delete_worker') }}"] {
+    display: inline-block;
+}
+
+button[type="submit"] {
+    background-color: #ff5555; /* Red color for delete button */
+    color: #fff; /* White text color */
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 3px;
+
+}
+
+button[type="submit"]:hover {
+    background-color: #cc0000; /* Darker red on hover */
+}
+
+#tables-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+/* Style for each table */
+.role-table {
+    width: 25%; /* Adjust as needed */
+    margin-bottom: 50px;
+}
+
+.even-row {
+    background-color: #e3e2e2; /* or any other color you prefer */
+}

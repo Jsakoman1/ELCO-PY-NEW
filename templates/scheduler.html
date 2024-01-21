@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            padding-bottom: 20px; /* Add more padding as needed */
+        }
+
+        /* Add a class to initially hide the week lists */
+        .hidden {
+            display: none;
+        }
+
+            /* Add a class for "Nr Shifts" and "Nr Roles" columns */
+    .nr-column {
+        width: 10%;
+    }
+
+    /* Add a class for the table */
+    #templateTable {
+        width: 100%;
+    }
+
+    .position-column {
+        width: 20%;
+    }
+    </style>
+
+    <title>Scheduler</title>
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h1>The Scheduler</h1>
+
+    <div id="start-date">Start date: {{ start_date }}</div>
+    <div id="current-date">Current date: {{ current_date }}</div>
+
+    <h1>Create Weeks for a year</h1>
+    <form action="{{ url_for('create_week') }}" method="post">
+        <label for="year">Enter a 4-digit year (2024-2100):</label>
+        <input type="number" id="year" name="year" min="2024" max="2100" value="{{ current_year }}" required>
+
+        <label for="week_number">Enter a week number:</label>
+        <input type="number" id="week_number" name="week_number" min="1" max="52" required>
+
+        <button type="submit">Create Week</button>
+    </form>
+
+    <h1>Clear All Schedules</h1>
+    <form action="{{ url_for('clear_all_schedules') }}" method="post">
+        <button type="submit">Clear All</button>
+    </form>
+
+    <h1>Available Weeks</h1>
+
+    {% for week_number, week_data in schedules_by_week.items() %}
+        <h2 onclick="toggleWeek('week{{ week_number }}')">Week {{ week_number }}</h2>
+        <ul id="week{{ week_number }}Days" class="hidden">
+            {% for day_data in week_data %}
+                <li>{{ day_data['date'] }}</li>
+                <!-- You can further iterate through day_data['schedule'] to display schedule details -->
+            {% endfor %}
+        </ul>
+    {% endfor %}
+
+    
+    <h1>Edit Week Schedule</h1>
+
+    {% for week_number, week_data in schedules_by_week.items() %}
+        <h2>
+            <a href="{{ url_for('week_details', week_number=week_number) }}">Week {{ week_number }}</a>
+        </h2>
+        <ul id="week{{ week_number }}Days" class="hidden">
+            {% for day_data in week_data %}
+                <li>{{ day_data['date'] }}</li>
+                <!-- You can further iterate through day_data['schedule'] to display schedule details -->
+            {% endfor %}
+        </ul>
+    {% endfor %}
+    
+</form>
+  
+
+
+    <script>
+        // Function to toggle the visibility of week lists
+        function toggleWeek(week) {
+            var weekList = document.getElementById(week + 'Days');
+            weekList.classList.toggle('hidden');
+        }
+
+        
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            padding-bottom: 20px; /* Add more padding as needed */
+        }
+
+        #container {
+            display: flex;
+            justify-content: space-around; /* Adjust as needed */
+        }
+
+        section {
+            flex: 1;
+            margin: 10px; /* Optional: Add some margin for spacing */
+        }
+
+        /* Style the submit button */
+        #scheduleForm input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Separate the scheduler section */
+        #scheduleSection {
+            border: 1px solid #ccc; /* Add a border to visually separate */
+            padding: 20px; /* Add padding to the scheduler section */
+            margin-top: 20px; /* Add margin to the top */
+        }
+
+        /* Add a class to initially hide the week lists */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div id="container">
+
+        <section id="add-worker-and-role-section">
+
+
+            <h3>Add New Worker</h3>
+            <form method="post" action="{{ url_for('workers_page') }}">
+
+                <label for="new-worker-name">Name:</label>
+                <input type="text" id="new-worker-name" name="new_worker_name" required>
+
+                <label for="new-worker-role">Role:</label>
+                <select id="new-worker-role" name="new_worker_role" required>
+                    {% for role in workers_by_role.keys() %}
+                        <option value="{{ role }}">{{ role }}</option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Add Worker</button>
+            </form>
+
+            <hr>
+
+            <h3>Add New Role</h3>
+            <form method="post" action="{{ url_for('add_new_role') }}">
+                <input type="text" name="new_role" required>
+                <button type="submit">Add Role</button>
+            </form>
+            <h2>All Roles</h2>
+            <table border="1">
+                <tr>
+                    <th>Role</th>
+                    <th>Delete</th>
+                </tr>
+                {% for role in workers_by_role.keys() %}
+                    <tr>
+                        <td>{{ role }}</td>
+                        <td>
+                            <form method="post" action="{{ url_for('delete_role') }}">
+                                <input type="hidden" name="role" value="{{ role }}">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+
+
+        </section>
+
+        <section id="workers-table-section">
+            <h2>All Workers DATA</h2>
+            <table border="1">
+                <tr>
+                    <th>Worker</th>
+                    <th>Assigned Roles</th>
+                    <th>Action</th>
+                </tr>
+                {% for worker in workers %}
+                    <tr>
+                        <td><b>{{ worker }}</b></td>
+                        <td>
+                            {% if worker in workers_with_roles %}
+                                {{ workers_with_roles[worker]|join(', ') }}
+                            {% else %}
+                                No roles assigned
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{{ url_for('delete_worker') }}">
+                                <input type="hidden" name="worker" value="{{ worker }}">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </section>
+
+    </div>
+        <h2>All roles</h2>
+        <div id="tables-container">
+            
+            {% for role, workers_in_role in workers_by_role.items() %}
+            <section class="role-table">
+                    <table border="1">
+                        <tr>
+                            <th>{{ role }}</th>
+                        </tr>
+                        {% for worker in workers_in_role %}
+                            <tr>
+                                <td>{{ worker }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+
+                    <h3>Add Worker to Role</h3>
+                    <form method="post" action="{{ url_for('add_worker_to_role') }}">
+                        <select name="worker" required>
+                            {% for worker in workers %}
+                                <option value="{{ worker }}">{{ worker }}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="hidden" name="role" value="{{ role }}">
+                        <button type="submit">Add to Role</button>
+                    </form>
+
+                </section>
+            {% endfor %}
+        </div>
+    
+</body>
+</html>

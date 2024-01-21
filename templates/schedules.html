@@ -1,0 +1,249 @@
+<!-- schedules.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Schedules</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <style>
+        body {
+            padding-bottom: 20px; /* Add more padding as needed */
+            font-size: 12px;
+        }
+
+        /* Style the submit button */
+        #scheduleForm input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #scheduleSection {
+        border: 1px solid #ccc;
+        padding: 20px;
+        margin-top: 20px;
+        width: 30%;
+        min-width: 300px;
+        box-sizing: border-box; /* Include padding and border in the width calculation */
+    }
+
+        /* Add a class to initially hide the week lists */
+        .hidden {
+            display: none;
+        }
+
+        .add-button,
+        .remove-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 3px 6px; /* Adjust padding as needed */
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 10px; /* Adjust font size as needed */
+        }
+
+        .remove-button {
+            background-color: #FF5733; /* Orange-red for - */
+    }
+
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <div id="scheduleSection">
+        <h2>Schedule Week 1</h2>
+        <form id="scheduleForm">
+            <table border="1">
+                <tr>
+                    <th>Position</th>
+                    {% for day in week_1_days %}
+                        <th data-day="{{ day }}">
+                            {{ day }}
+                        </th>
+                    {% endfor %}
+                    {% if checkbox and checkbox.checked %}
+                        <th data-day="2024-01-06">2024-01-06</th>
+                        <th data-day="2024-01-07">2024-01-07</th>
+                    {% endif %}
+                </tr>
+                {% for position in positions %}
+                    {% if loop.index is even %}
+                        <tr class="even-row">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+                    <td>{{ position }}</td>
+                    {% for day in week_1_days %}
+                    <td data-day="{{ day }}">
+                        <select class="worker-dropdown" data-position="{{ position }}" data-day="{{ day }}">
+                            <option value=""></option>
+                            {% for w in workers %}
+                            <option value="{{ w }}" {% if schedules[day.strftime('%Y-%m-%d')][position] == w %}selected{% endif %}>{{ w }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="add-button" onclick="addDropdown(this)">+</button>
+                        <button class="remove-button" onclick="removeDropdown(this)">-</button>
+                    
+                    </td>
+                    {% endfor %}
+                    {% if checkbox and checkbox.checked %}
+                        <td data-day="2024-01-06">
+                            <select class="worker-dropdown" data-position="{{ position }}" data-day="2024-01-06">
+                                <option value="" {% if not schedules['2024-01-06'][position] %}selected{% endif %}></option>
+                                {% for w in workers %}
+                                <option value="{{ w }}" {% if schedules['2024-01-06'][position] == w %}selected{% endif %}>{{ w }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td data-day="2024-01-07">
+                            <select class="worker-dropdown" data-position="{{ position }}" data-day="2024-01-07">
+                                <option value="" {% if not schedules['2024-01-07'][position] %}selected{% endif %}></option>
+                                {% for w in workers %}
+                                <option value="{{ w }}" {% if schedules['2024-01-07'][position] == w %}selected{% endif %}>{{ w }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    {% endif %}
+                    </tr>
+                {% endfor %}
+            </table>
+            <input type="checkbox" id="showLongWeek" onchange="toggleLongWeek()">
+            <label for="showLongWeek">Lange Woche</label>
+            <input type="submit" value="Save Schedule">
+        </form>
+    </div>
+
+    <script>
+       
+
+        // Function to toggle the visibility of week lists
+        function addDropdown(button) {
+        var position = $(button).closest('td').data('position');
+        var day = $(button).closest('td').data('day');
+
+        // Get the existing dropdown in the same cell
+        var existingDropdown = $(button).closest('td').find('.worker-dropdown').first();
+
+        // Clone the existing dropdown and remove the selected attribute
+        var newDropdown = existingDropdown.clone().removeAttr('selected');
+
+        // Append the new dropdown to the parent td
+        $(button).before(newDropdown);
+    }
+
+    // Function to remove the last dropdown
+    function removeDropdown(button) {
+        var dropdowns = $(button).closest('td').find('.worker-dropdown');
+
+        // Ensure there is at least one dropdown before removing
+        if (dropdowns.length > 1) {
+            dropdowns.last().remove();
+        }
+    }
+
+
+
+
+        // Ensure the DOM is ready before attaching event handlers
+        $(document).ready(function () {
+            toggleLongWeek();
+            // Prevent the default form submission to handle it using AJAX
+            $("#scheduleForm").submit(function (e) {
+                e.preventDefault();
+                saveSchedule();
+            });
+
+            // Function to handle saving the schedule using AJAX
+            function saveSchedule() {
+                var scheduleData = {};
+
+                // Iterate through each dropdown to get the selected worker for each position and day
+                $(".worker-dropdown").each(function () {
+                    var position = $(this).data("position");
+                    var day = $(this).data("day");
+                    var worker = $(this).val();
+
+                    // Initialize the position in the scheduleData object if not present
+                    if (!scheduleData[day]) {
+                        scheduleData[day] = {};
+                    }
+
+                    // Assign the selected worker for the position and day
+                    
+                    scheduleData[day][position] = worker;
+                    
+                });
+
+                // Use AJAX to send the schedule data to the server
+                $.ajax({
+                    type: "POST",
+                    url: "/save_schedule",
+                    contentType: "application/json;charset=UTF-8",
+                    data: JSON.stringify(scheduleData),
+                    success: function (response) {
+                        // Handle success (if needed)
+                        console.log("Schedule saved successfully!");
+                    },
+                    error: function (error) {
+                        // Handle error (if needed)
+                        console.error("Error saving schedule:", error);
+                    }
+                });
+            }
+        });
+    </script>
+    <script>
+        // Function to toggle the visibility of columns for day 6 and day 7
+        function toggleLongWeek() {
+            // Get the checkbox element
+            var checkbox = document.getElementById('showLongWeek');
+
+            // Get the table cells for day 6 and day 7
+            var cellsDay6 = document.querySelectorAll('td[data-day="2024-01-06"]');
+            var cellsDay7 = document.querySelectorAll('td[data-day="2024-01-07"]');
+
+            var cellsDay6Th = document.querySelectorAll('th[data-day="2024-01-06"]');
+            var cellsDay7Th = document.querySelectorAll('th[data-day="2024-01-07"]');
+
+            // Toggle the visibility based on the checkbox state
+            if (checkbox.checked) {
+                cellsDay6.forEach(function (cell) {
+                    cell.style.display = 'table-cell';
+                });
+                cellsDay7.forEach(function (cell) {
+                    cell.style.display = 'table-cell';
+                });
+                cellsDay6Th.forEach(function (cell) {
+                    cell.style.display = 'table-cell';
+                });
+                cellsDay7Th.forEach(function (cell) {
+                    cell.style.display = 'table-cell';
+                });
+            } else {
+                cellsDay6.forEach(function (cell) {
+                    cell.style.display = 'none';
+                });
+                cellsDay7.forEach(function (cell) {
+                    cell.style.display = 'none';
+                });
+                cellsDay6Th.forEach(function (cell) {
+                    cell.style.display = 'none';
+                });
+                cellsDay7Th.forEach(function (cell) {
+                    cell.style.display = 'none';
+                });
+            }
+        }
+    </script>
+    
+</body>
+</html>

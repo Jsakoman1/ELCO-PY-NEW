@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+    <title>Schedule App</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <style>
+        body {
+            padding-bottom: 20px; /* Add more padding as needed */
+        }
+
+        /* Add a class to initially hide the week lists */
+        .hidden {
+            display: none;
+        }
+    </style>
+
+</head>
+<body>
+    {% include 'navbar.html' %}
+    <h1>Schedule App</h1>
+
+    <div id="start-date">Start date: {{ start_date }}</div>
+
+    <h2>Workers by Role</h2>
+    <table border="1">
+        <tr>
+            <th>Role</th>
+            <th>Workers</th>
+        </tr>
+        {% for role, workers in workers_by_role.items() %}
+            <tr>
+                <td>{{ role }}</td>
+                <td>
+                    {% for worker in workers %}
+                        {{ worker }}<br>
+                    {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+
+    {% for week_number, week_data in schedules_by_week.items() %}
+        <h2 onclick="toggleWeek('week{{ week_number }}')">Week {{ week_number }} Days</h2>
+        <ul id="week{{ week_number }}Days" class="hidden">
+            {% for day_data in week_data %}
+                <li>{{ day_data['date'] }}</li>
+                <!-- You can further iterate through day_data['schedule'] to display schedule details -->
+            {% endfor %}
+        </ul>
+    {% endfor %}
+
+   
+
+    <script>
+        // Add any JavaScript code you need
+
+        // Function to toggle the visibility of week lists
+        function toggleWeek(week) {
+            var weekList = document.getElementById(week + 'Days');
+            weekList.classList.toggle('hidden');
+        }
+
+        
+    </script>
+   
+</body>
+</html>
